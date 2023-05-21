@@ -24,15 +24,12 @@ const Viewer = ({
   const [scene, setScene] = useState<THREE.Scene>()
   const [renderer, setRenderer] = useState<THREE.WebGLRenderer>()
   const [camera, setCamera] = useState<THREE.PerspectiveCamera>()
-  // const [screwModels, setScrewModels] = useState<>()
+  const [screwModels, setScrewModels] = useState<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]>[]>([])
   const [transformControls, setTransformControls] = useState<TransformControls>();
   const [orbitControls, setOrbitControls] = useState<SetStateAction<OrbitControls>>()
-  
-  const addScrew = () => {
 
-  }
 
-  // create configure scene
+  // create scene
   useEffect(() => {
     const scene = new THREE.Scene();
     setScene(scene);
@@ -44,6 +41,7 @@ const Viewer = ({
 		setRenderer(renderer);
 	}, []);
 
+  // configure scene
   useEffect(() => {
 		if (renderer && camera && scene) {
 			setTransformControls(new TransformControls(camera, renderer.domElement));
@@ -56,14 +54,13 @@ const Viewer = ({
 			animate.animate();
 
 			rendererStl(stlUrl, scene, textureLoader, loader, defaultWhiteTexutre);
-      renderer.domElement.addEventListener('dblclick', handleDoubleClick);
+      renderer.domElement.addEventListener('dblclick', addScrew);
 		}
 	}, [renderer, camera, scene]);
 
 
   // mouse events
-  const handleDoubleClick = (event: MouseEvent) => {
-
+  const addScrew = (event: MouseEvent) => {
     if (!scene || !camera || !renderer) return
     event.preventDefault();
     const mouse = new THREE.Vector2(
@@ -79,11 +76,25 @@ const Viewer = ({
       const position = new THREE.Vector3().copy(intersect.point);
       const rotation = new THREE.Euler();
 
-      // Load and add new model
+      // Load and add screw
       const ScrewModel = STATIC_MODELS.SCREW;
-      rendererStl(ScrewModel, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation);
+      const newScrew = rendererStl(ScrewModel, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation);
+      if (newScrew) {
+        setScrewModels(prevScrews => [...prevScrews, newScrew])
+      } else {
+        //TODO: solve issue with tracking model now all models are undefined
+        console.log('model loadin issue!')
+      }
     }
   }
+
+  // orbit controller
+	useEffect(() => {
+		if (!orbitControls) return
+    (orbitControls as OrbitControls).maxDistance = 450;
+    (orbitControls as OrbitControls).minDistance = 125;
+
+	}, [orbitControls]);
 
   return ( 
       <>

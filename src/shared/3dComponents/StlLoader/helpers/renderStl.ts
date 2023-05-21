@@ -15,7 +15,7 @@ export const rendererStl = (
     textur: string,
     posConfigs: ConfigInterface = {x: 0, y: 0, z: 0}, // positional configuration
     rotationConfigs: ConfigInterface = {x: 0, y: 0, z: 0} // rotation for current model
-) => {
+) : THREE.Mesh | undefined => {
     loader.load(stlUrl, (geometry) => {
         const material = new THREE.MeshMatcapMaterial({
             color: 0xffffff, // color for texture
@@ -28,5 +28,7 @@ export const rendererStl = (
         mesh.rotation.set(rotationConfigs.x, rotationConfigs.y, rotationConfigs.z);
 
         scene.add(mesh);
+        return mesh
     });
+    return undefined
 };
