@@ -10,7 +10,7 @@ import { rendererStl } from './helpers/renderStl';
 
 import styles from './style.module.css'
 import { createAnimate } from './helpers/animate';
-import { defaultWhiteTexutre } from '../cosntants';
+import { STATIC_MODELS, defaultWhiteTexutre } from '../cosntants';
 
 const textureLoader = new THREE.TextureLoader();
 const loader = new Loader();
@@ -24,9 +24,14 @@ const Viewer = ({
   const [scene, setScene] = useState<THREE.Scene>()
   const [renderer, setRenderer] = useState<THREE.WebGLRenderer>()
   const [camera, setCamera] = useState<THREE.PerspectiveCamera>()
+  // const [screwModels, setScrewModels] = useState<>()
   const [transformControls, setTransformControls] = useState<TransformControls>();
   const [orbitControls, setOrbitControls] = useState<SetStateAction<OrbitControls>>()
   
+  const addScrew = () => {
+
+  }
+
   // create configure scene
   useEffect(() => {
     const scene = new THREE.Scene();
@@ -51,9 +56,34 @@ const Viewer = ({
 			animate.animate();
 
 			rendererStl(stlUrl, scene, textureLoader, loader, defaultWhiteTexutre);
+      renderer.domElement.addEventListener('dblclick', handleDoubleClick);
 		}
 	}, [renderer, camera, scene]);
 
+
+  // mouse events
+  const handleDoubleClick = (event: MouseEvent) => {
+
+    if (!scene || !camera || !renderer) return
+    event.preventDefault();
+    const mouse = new THREE.Vector2(
+      (event.clientX / width) * 2 - 1,
+      -(event.clientY / height) * 2 + 1
+    );
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObjects(scene.children, true);
+    if (intersects.length > 0) {
+      const intersect = intersects[0];
+      const position = new THREE.Vector3().copy(intersect.point);
+      const rotation = new THREE.Euler();
+
+      // Load and add new model
+      const ScrewModel = STATIC_MODELS.SCREW;
+      rendererStl(ScrewModel, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation);
+    }
+  }
 
   return ( 
       <>
