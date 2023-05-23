@@ -1,16 +1,16 @@
-import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { SetStateAction, useEffect, useRef, useState } from 'react';
 
 import * as THREE from 'three';
 import { STLLoader as Loader } from 'three/examples/jsm/loaders/STLLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'; // Import OrbitControls
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 
-import { AddController } from './helpers/addController';
 import { rendererStl } from './helpers/renderStl';
+import { createAnimate } from './helpers/animate';
+
+import { SCREW_CONFIGURE, STATIC_MODELS, defaultWhiteTexutre } from '../cosntants';
 
 import styles from './style.module.css'
-import { createAnimate } from './helpers/animate';
-import { STATIC_MODELS, defaultWhiteTexutre } from '../cosntants';
 
 const textureLoader = new THREE.TextureLoader();
 const loader = new Loader();
@@ -27,8 +27,7 @@ const Viewer = ({
   const [screwModels, setScrewModels] = useState<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]>[]>([])
   const [transformControls, setTransformControls] = useState<TransformControls>();
   const [orbitControls, setOrbitControls] = useState<SetStateAction<OrbitControls>>()
-
-
+  console.log(screwModels)
   // create scene
   useEffect(() => {
     const scene = new THREE.Scene();
@@ -74,17 +73,11 @@ const Viewer = ({
     if (intersects.length > 0) {
       const intersect = intersects[0];
       const position = new THREE.Vector3().copy(intersect.point);
-      const rotation = new THREE.Euler();
-
+      // const rotation = new THREE.Euler();
+      const rotation = SCREW_CONFIGURE.rotation
       // Load and add screw
       const ScrewModel = STATIC_MODELS.SCREW;
-      const newScrew = rendererStl(ScrewModel, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation);
-      if (newScrew) {
-        setScrewModels(prevScrews => [...prevScrews, newScrew])
-      } else {
-        //TODO: solve issue with tracking model now all models are undefined
-        console.log('model loadin issue!')
-      }
+      rendererStl(ScrewModel, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation, setScrewModels);
     }
   }
 
