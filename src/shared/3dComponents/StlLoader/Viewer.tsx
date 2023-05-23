@@ -8,7 +8,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { rendererStl } from './helpers/renderStl';
 import { createAnimate } from './helpers/animate';
 
-import { SCREW_CONFIGURE, STATIC_MODELS, defaultWhiteTexutre } from '../cosntants';
+import { SCENE_BACKGROUND_COLOR, SCREW_CONFIGURE, STATIC_MODELS, defaultWhiteTexutre } from '../cosntants';
 
 import styles from './style.module.css'
 
@@ -31,6 +31,7 @@ const Viewer = ({
   // create scene
   useEffect(() => {
     const scene = new THREE.Scene();
+    scene.background = new THREE.Color(SCENE_BACKGROUND_COLOR);
     setScene(scene);
 
 		const camera = new THREE.PerspectiveCamera(750, width / height, 10, 100000);
@@ -73,7 +74,6 @@ const Viewer = ({
     if (intersects.length > 0) {
       const intersect = intersects[0];
       const position = new THREE.Vector3().copy(intersect.point);
-      // const rotation = new THREE.Euler();
       const rotation = SCREW_CONFIGURE.rotation
       // Load and add screw
       const ScrewModel = STATIC_MODELS.SCREW;
@@ -89,9 +89,23 @@ const Viewer = ({
 
 	}, [orbitControls]);
 
+  // transform controls
+  useEffect(() => {
+      // TODO: add transform controlls efects
+      
+  }, [transformControls])
+
   return ( 
       <>
         <div ref={containerRef} style={{ width: width, height: height }} className={styles.Viewer}/>
+        {/* {orbitControls && (
+          <div className={styles.Controls}> // TODO: use shared componenets or subcomponents check the styles also
+            <button onClick={() => (orbitControls as OrbitControls).reset()}>
+              Reset Camera
+            </button>
+          </div>
+        )} */}
+        {/* add menu for this */}
       </>
     )
 };

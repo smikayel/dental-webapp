@@ -2,3 +2,26 @@ body {
     overflow-x: hidden !important;
     overflow-y: hidden !important;
 }
+/* TODO: add this button to shared componenets  
+
+.Controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .Controls button {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    margin-top: 5px;
+    cursor: pointer;
+  }
+  
+  .Controls button:hover {
+    background-color: #555;
+  } */

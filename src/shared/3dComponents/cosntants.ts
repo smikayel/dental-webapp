@@ -19,3 +19,5 @@ export const SCREW_CONFIGURE: MainConfig = {
         z: THREE.MathUtils.degToRad(90),
     },
 }
+
+export const SCENE_BACKGROUND_COLOR = 0x968368
