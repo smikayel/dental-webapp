@@ -1,0 +1,10 @@
+.ToolBar {
+    height: 100%;
+}
+  
+.ProductHeader {
+    display: flex;
+    justify-content: space-evenly;
+    text-align: center;
+    font-family: 'GlobalFont', sans-serif;
+}

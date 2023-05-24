@@ -1,4 +1,7 @@
-
+@font-face {
+  font-family: 'GlobalFont';
+  src: url('../public/assets/fonts/Sigmar-Regular.ttf');
+}
 
 .App {
   text-align: center;

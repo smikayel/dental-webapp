@@ -1,6 +1,5 @@
 import { SetStateAction, useEffect, useRef, useState } from 'react';
 
-import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';
 
 import * as THREE from 'three';
 import { STLLoader as Loader } from 'three/examples/jsm/loaders/STLLoader';
@@ -13,7 +12,7 @@ import { createAnimate } from './helpers/animate';
 import { SCENE_BACKGROUND_COLOR, SCREW_CONFIGURE, STATIC_MODELS, defaultWhiteTexutre } from '../cosntants';
 
 import styles from './style.module.css'
-import { Icon } from '../../components/Icon';
+import { SideBar } from '../../components/SideBar';
 
 
 const textureLoader = new THREE.TextureLoader();
@@ -115,40 +114,11 @@ const Viewer = ({
     transformControls?.detach()
   }
 
-  const handleMenu = () => {
-    setCollapsed(!collapsed)
-  }
-
   return ( 
       <>
         <div ref={containerRef} style={{ width: width, height: height }} className={styles.Viewer}/>
         <div className={styles.SideMenu}>
-          <Sidebar 
-            collapsed={collapsed}
-            className={styles.ToolBar}
-          >
-            <Menu>
-              <Icon src='assets/images/Product/logo.png' height='80px' style={{userSelect: 'none'}}/>
-              <MenuItem
-               icon={<Icon src='assets/images/Toolbar/menu.png'/>}
-               onClick={handleMenu}
-              >
-                Hide Menu
-              </MenuItem>
-              <SubMenu 
-                label="Implants/Wings"
-                icon={<Icon src='assets/images/Toolbar/implant.png'/>}
-              >
-                <MenuItem>
-                  <div className={styles.Wings}>
-                    here is something
-                  </div>
-                </MenuItem>
-              </SubMenu>
-              <MenuItem> Documentation </MenuItem>
-              <MenuItem> Calendar </MenuItem>
-            </Menu>
-          </Sidebar>
+          <SideBar />
         </div>
       </>
     )
