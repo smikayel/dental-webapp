@@ -11,7 +11,8 @@ export const rendererStl = (
     textur: string,
     posConfigs: ConfigInterface = {x: 0, y: 0, z: 0}, // positional configuration
     rotationConfigs: ConfigInterface = {x: 0, y: 0, z: 0}, // rotation for current model
-    saveModelInState?: React.Dispatch<React.SetStateAction<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]>[]>>
+    saveModelInState?: React.Dispatch<React.SetStateAction<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]>[]>>,
+    selectModelOnCreation?: React.Dispatch<React.SetStateAction<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]> | undefined>>
 ) => {
     loader.load(stlUrl, (geometry) => {
         const material = new THREE.MeshMatcapMaterial({
@@ -26,9 +27,10 @@ export const rendererStl = (
         mesh.rotation.set(rotationConfigs.x || 0, rotationConfigs.y || 0, rotationConfigs.z || 0);
 
         scene.add(mesh);
-        if (saveModelInState) {
-            // in busines logic it should given only when need to save the mesh in some of the states
-            saveModelInState(prevState => [...prevState, mesh])
-        }
+        // in busines logic it should given only when need to save the mesh in some of the states
+        saveModelInState && saveModelInState(prevState => [...prevState, mesh])
+
+        // if need to select model (as expected it should be screw)
+        selectModelOnCreation && selectModelOnCreation(mesh)
     });
 };
