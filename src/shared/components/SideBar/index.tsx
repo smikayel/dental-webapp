@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';
 import { Icon } from '../../components/Icon';
 import styles from './style.module.css'
+import { ImplantsSection } from '../ImplantsSection';
 
 export const SideBar = () => {
     const [collapsed, setCollapsed] = useState<boolean>(true)
@@ -27,10 +28,8 @@ export const SideBar = () => {
                     label="Implants/Wings"
                     icon={<Icon src='assets/images/Toolbar/implant.png'/>}
                 >
-                    <MenuItem>
-                    <div className={styles.Wings}>
-                        <></>
-                    </div>
+                    <MenuItem style={{height: 'auto', padding: '5px'}}>
+                        <ImplantsSection />
                     </MenuItem>
                 </SubMenu>
                     <MenuItem

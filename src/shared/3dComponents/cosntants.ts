@@ -3,6 +3,15 @@ import * as THREE from 'three'
 
 export const defaultWhiteTexutre = 'assets/models/GlobalTexturs/whiteTextureBasic.jpg'
 
+export const WINGS = [
+    {name: 'Screw for wing', icon: 'assets/models/screw/screw.png', model: 'assets/models/screw/screw.png'},
+    {name: 'Long Wing', icon: 'assets/models/wings/longWing/tectonic_long_preview.png', model: 'assets/models/wings/longWing/tectonic_long.stl'},
+    {name: 'Single Wing', icon: 'assets/models/wings/singleWing/tectonic_single_preview.png', model: 'assets/models/wings/singleWing/tectonic_single.stl'},
+    {name: 'Straight Wing', icon: 'assets/models/wings/straightWing/tectonic_straight_preview.png', model: 'assets/models/wings/straightWing/tectonic_straight.stl'},
+    {name: 'Wing with angle (<= 30)', icon: 'assets/models/wings/angle1Wing/tectonic_angle1_preview.png', model: 'assets/models/wings/angle1Wing/tectonic_angle1.stl'},
+    {name: 'Wing with angle (<= 30)', icon: 'assets/models/wings/angle2Wing/tectonic_angle2_preview.png', model: 'assets/models/wings/angle2Wing/tectonic_angle2.stl'},
+]
+
 export const STATIC_MODELS = {
     SCREW: 'assets/models/screw/Screw.stl'
 }

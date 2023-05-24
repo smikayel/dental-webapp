@@ -1,0 +1,16 @@
+.ImplantSection {
+    height: 100%;
+    overflow-y: auto !important;
+    padding: 5px;
+}
+
+.btn {
+    border-radius: 5px;
+    box-shadow: rgba(67, 71, 85, 0.27) 0px 0px 0.25em, rgba(90, 125, 188, 0.05) 0px 0.25em 1em;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: rgb(212, 228, 242);
+    box-shadow: rgba(17, 17, 26, 0.05) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px;
+}

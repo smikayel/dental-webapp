@@ -31,7 +31,6 @@ const Viewer = ({
   const [transformControls, setTransformControls] = useState<TransformControls>();
   const [selectedModel, setSelectedModel] = useState<THREE.Mesh | undefined>()
   const [orbitControls, setOrbitControls] = useState<SetStateAction<OrbitControls>>()
-  const [collapsed, setCollapsed] = useState<boolean>(true)
 
   // create scene
   useEffect(() => {
