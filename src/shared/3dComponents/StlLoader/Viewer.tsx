@@ -36,7 +36,6 @@ const Viewer = ({
   const screwModelsRef = useRef(screwModels);
   const choosedWingTypeRef = useRef(choosedWingType);
 
-
   // mouse events
   const addScrew = (event: MouseEvent) => {
     if (!scene || !camera || !renderer) return
@@ -55,13 +54,12 @@ const Viewer = ({
       const intersect = intersects[0];
       const position = new THREE.Vector3().copy(intersect.point);
       const rotation = SCREW_CONFIGURE.rotation
-      console.log(choosedWingTypeRef.current, '><><><><><><><><><><><><<><');
+
       // Load and add screw (choosedWingType will give correct wing)
       const ScrewModel = STATIC_MODELS.SCREW;
-      if (choosedWingType === WINGS[0].name) {
+      if (choosedWingTypeRef.current === WINGS[0].name) {
         rendererStl(ScrewModel, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation, setScrewModels, setSelectedModel);
       } else {
-        console.log(WINGS_SEARCHABLE_OBJECT, choosedWingType)
         console.log('-----------------')
         // rendererStl(ScrewModel, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation, setScrewModels, setSelectedModel);
         // rendererStl(ScrewModel, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation, setScrewModels, setSelectedModel);
@@ -84,7 +82,7 @@ const Viewer = ({
     const intersects = raycaster.intersectObjects(screwModelsRef.current, true);
 
     if (intersects.length > 0) {
-      console.log('ha eli')
+      setSelectedModel(intersects[0].object as THREE.Mesh)
     } else {
       setSelectedModel(undefined)
       transformControls?.detach()
@@ -119,7 +117,7 @@ const Viewer = ({
 			rendererStl(stlUrl, scene, textureLoader, loader, defaultWhiteTexutre);
       renderer.domElement.addEventListener('dblclick', addScrew);
       renderer.domElement.addEventListener('click', reselectOrReset);
-      console.log(screwModels)
+
       return () => {
 				renderer.domElement.removeEventListener('dblclick', addScrew);
         renderer.domElement.removeEventListener('click', reselectOrReset);
