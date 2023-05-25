@@ -3,6 +3,7 @@ import * as THREE from 'three'
 
 export const defaultWhiteTexutre = 'assets/models/GlobalTexturs/whiteTextureBasic.jpg'
 
+
 export const WINGS = [
     {name: 'Screw for wing', icon: 'assets/models/screw/screw.png', model: 'assets/models/screw/screw.png'},
     {name: 'Distance', icon: 'assets/models/wings/longWing/tectonic_long_preview.png', model: 'assets/models/wings/longWing/tectonic_long.stl'},

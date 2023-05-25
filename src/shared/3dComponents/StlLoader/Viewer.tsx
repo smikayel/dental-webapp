@@ -14,6 +14,7 @@ import { SCENE_BACKGROUND_COLOR, SCREW_CONFIGURE, STATIC_MODELS, WINGS, WINGS_SE
 import styles from './style.module.css'
 import { SideBar } from '../../components/SideBar';
 import { WingContext } from '../../Contexts/ChoosedWingsContext/provider';
+import { WingType, renderScrewWithWing } from './helpers/renderScrewWithWing';
 
 
 const textureLoader = new THREE.TextureLoader();
@@ -60,10 +61,8 @@ const Viewer = ({
       if (choosedWingTypeRef.current === WINGS[0].name) {
         rendererStl(ScrewModel, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation, setScrewModels, setSelectedModel);
       } else {
-        console.log('-----------------')
-        // rendererStl(ScrewModel, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation, setScrewModels, setSelectedModel);
-        // rendererStl(ScrewModel, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation, setScrewModels, setSelectedModel);
-
+        // add element with wing 
+        renderScrewWithWing(choosedWingTypeRef.current as WingType, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation, setScrewModels, setSelectedModel);
       }
     }
   }
