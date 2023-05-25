@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';
 import { Icon } from '../../components/Icon';
 import styles from './style.module.css'
 import { ImplantsSection } from '../ImplantsSection';
+import { WingContext } from '../../Contexts/ChoosedWingsContext/provider';
 
 export const SideBar = () => {
     const [collapsed, setCollapsed] = useState<boolean>(true)
@@ -10,8 +11,8 @@ export const SideBar = () => {
     return (
         <>
             <Sidebar 
-            collapsed={collapsed}
-            className={styles.ToolBar}
+                collapsed={collapsed}
+                className={styles.ToolBar}
             >
                 <Menu>
                 <div className={styles.ProductHeader}>

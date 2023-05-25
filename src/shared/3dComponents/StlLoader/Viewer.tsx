@@ -1,4 +1,4 @@
-import { SetStateAction, useEffect, useRef, useState } from 'react';
+import { SetStateAction, useContext, useEffect, useRef, useState } from 'react';
 
 
 import * as THREE from 'three';
@@ -9,10 +9,11 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { rendererStl } from './helpers/renderStl';
 import { createAnimate } from './helpers/animate';
 
-import { SCENE_BACKGROUND_COLOR, SCREW_CONFIGURE, STATIC_MODELS, defaultWhiteTexutre } from '../cosntants';
+import { SCENE_BACKGROUND_COLOR, SCREW_CONFIGURE, STATIC_MODELS, WINGS, WINGS_SEARCHABLE_OBJECT, defaultWhiteTexutre } from '../cosntants';
 
 import styles from './style.module.css'
 import { SideBar } from '../../components/SideBar';
+import { WingContext } from '../../Contexts/ChoosedWingsContext/provider';
 
 
 const textureLoader = new THREE.TextureLoader();
@@ -30,7 +31,65 @@ const Viewer = ({
   const [screwModels, setScrewModels] = useState<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]>[]>([])
   const [transformControls, setTransformControls] = useState<TransformControls>();
   const [selectedModel, setSelectedModel] = useState<THREE.Mesh | undefined>()
-  const [orbitControls, setOrbitControls] = useState<SetStateAction<OrbitControls>>()
+  const [orbitControls, setOrbitControls] = useState<SetStateAction<OrbitControls>>()  
+  const { choosedWingType } = useContext(WingContext);
+  const screwModelsRef = useRef(screwModels);
+  const choosedWingTypeRef = useRef(choosedWingType);
+
+
+  // mouse events
+  const addScrew = (event: MouseEvent) => {
+    if (!scene || !camera || !renderer) return
+    event.preventDefault();
+    const mouse = new THREE.Vector2(
+      (event.clientX / width) * 2 - 1,
+      -(event.clientY / height) * 2 + 1
+    );
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+
+    // intersect with Jaw model (core model in scene )
+    const intersects = raycaster.intersectObjects([scene.children[0]], true);
+
+    if (intersects.length > 0) {
+      const intersect = intersects[0];
+      const position = new THREE.Vector3().copy(intersect.point);
+      const rotation = SCREW_CONFIGURE.rotation
+      console.log(choosedWingTypeRef.current, '><><><><><><><><><><><><<><');
+      // Load and add screw (choosedWingType will give correct wing)
+      const ScrewModel = STATIC_MODELS.SCREW;
+      if (choosedWingType === WINGS[0].name) {
+        rendererStl(ScrewModel, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation, setScrewModels, setSelectedModel);
+      } else {
+        console.log(WINGS_SEARCHABLE_OBJECT, choosedWingType)
+        console.log('-----------------')
+        // rendererStl(ScrewModel, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation, setScrewModels, setSelectedModel);
+        // rendererStl(ScrewModel, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation, setScrewModels, setSelectedModel);
+
+      }
+    }
+  }
+
+  const reselectOrReset = (event: MouseEvent) => {
+    if (!scene || !camera || !renderer) return
+    event.preventDefault();
+    const mouse = new THREE.Vector2(
+      (event.clientX / width) * 2 - 1,
+      -(event.clientY / height) * 2 + 1
+    );
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+  
+    // intersect with Jaw model (core model in scene )
+    const intersects = raycaster.intersectObjects(screwModelsRef.current, true);
+
+    if (intersects.length > 0) {
+      console.log('ha eli')
+    } else {
+      setSelectedModel(undefined)
+      transformControls?.detach()
+    }
+  };
 
   // create scene
   useEffect(() => {
@@ -43,7 +102,7 @@ const Viewer = ({
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
 		setRenderer(renderer);
-	}, []);
+	}, [width , height]);
 
   // configure scene
   useEffect(() => {
@@ -60,6 +119,11 @@ const Viewer = ({
 			rendererStl(stlUrl, scene, textureLoader, loader, defaultWhiteTexutre);
       renderer.domElement.addEventListener('dblclick', addScrew);
       renderer.domElement.addEventListener('click', reselectOrReset);
+      console.log(screwModels)
+      return () => {
+				renderer.domElement.removeEventListener('dblclick', addScrew);
+        renderer.domElement.removeEventListener('click', reselectOrReset);
+			};
 		}
 	}, [renderer, camera, scene]);
 
@@ -75,45 +139,19 @@ const Viewer = ({
 
   useEffect(() => {
     if (selectedModel && transformControls) {
-      scene?.add(transformControls)
-      transformControls?.attach(selectedModel)
+      scene?.add(transformControls);
+      transformControls?.attach(selectedModel);
     } else {
-      transformControls?.detach()
+      transformControls?.detach();
     }
   }, [selectedModel])
 
+  useEffect(() => {
+    screwModelsRef.current = screwModels
+    choosedWingTypeRef.current = choosedWingType
+  }, [screwModels, choosedWingType])
 
-  // mouse events
-  const addScrew = (event: MouseEvent) => {
-    if (!scene || !camera || !renderer) return
-    event.preventDefault();
-    const mouse = new THREE.Vector2(
-      (event.clientX / width) * 2 - 1,
-      -(event.clientY / height) * 2 + 1
-    );
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse, camera);
-
-    // intersect with Jaw model (core model in scene )
-    const intersects = raycaster.intersectObjects([scene.children[0]], true);
-    
-    if (intersects.length > 0) {
-      console.log("intersect")
-      const intersect = intersects[0];
-      const position = new THREE.Vector3().copy(intersect.point);
-      const rotation = SCREW_CONFIGURE.rotation
-      // Load and add screw
-      const ScrewModel = STATIC_MODELS.SCREW;
-      rendererStl(ScrewModel, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation, setScrewModels, setSelectedModel);
-    }
-  }
-
-  const reselectOrReset = (evenet: MouseEvent) => {
-    setSelectedModel(undefined)
-    transformControls?.detach()
-  }
-
-  return ( 
+  return (
       <>
         <div ref={containerRef} style={{ width: width, height: height }} className={styles.Viewer}/>
         <div className={styles.SideMenu}>

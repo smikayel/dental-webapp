@@ -1,7 +1,7 @@
 .ImplantSection {
     height: 100%;
     overflow-y: auto !important;
-    padding: 5px;
+    padding: 15px;
 }
 
 .btn {
@@ -13,4 +13,8 @@
 .btn:hover {
     background-color: rgb(212, 228, 242);
     box-shadow: rgba(17, 17, 26, 0.05) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px;
+}
+
+.btnActive {
+    background-color: rgb(179, 187, 194);
 }

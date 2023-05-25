@@ -1,7 +1,9 @@
+
 .ToolBar {
     height: 100%;
+    user-select: none;
 }
-  
+
 .ProductHeader {
     display: flex;
     justify-content: space-evenly;

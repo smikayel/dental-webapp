@@ -3,6 +3,7 @@ import logo from './logo.svg';
 import Viewer from './shared/3dComponents/StlLoader/Viewer'
 
 import './App.css';
+import { WingProvider } from './shared/Contexts/ChoosedWingsContext/provider';
 
 
 function App() {
@@ -23,7 +24,10 @@ function App() {
           Learn React
         </a>
       </header> */}
-      <Viewer />
+      
+      <WingProvider>
+        <Viewer />
+      </WingProvider>
     </div>
   );
 }

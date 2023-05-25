@@ -23,7 +23,6 @@ export const rendererStl = (
         mesh.geometry.computeVertexNormals();
         mesh.geometry.center();
         mesh.position.set(posConfigs.x || 0, posConfigs.y || 0, posConfigs.z || 0);
-        console.log(rotationConfigs)
         mesh.rotation.set(rotationConfigs.x || 0, rotationConfigs.y || 0, rotationConfigs.z || 0);
 
         scene.add(mesh);
