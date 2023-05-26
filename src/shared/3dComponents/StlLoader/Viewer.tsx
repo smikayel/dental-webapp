@@ -54,7 +54,7 @@ const Viewer = ({
       const intersect = intersects[0];
       const position = new THREE.Vector3().copy(intersect.point);
       const rotation = SCREW_CONFIGURE.rotation
-
+      
       // Load and add screw (choosedWingType will give correct wing)
       const ScrewModel = STATIC_MODELS.SCREW;
       if (choosedWingTypeRef.current === WINGS[0].name) {
@@ -80,7 +80,13 @@ const Viewer = ({
     const intersects = raycaster.intersectObjects(screwModelsRef.current, true);
 
     if (intersects.length > 0) {
-      setSelectedModel(intersects[0].object as THREE.Mesh)
+      // understanding is it the screw or the screw with wing 
+      const intersectedObject = intersects[0].object as THREE.Mesh
+      if (intersectedObject.parent?.uuid == scene.uuid) {
+        setSelectedModel(intersectedObject)
+      } else {
+        setSelectedModel(intersectedObject.parent as THREE.Mesh)
+      }
     } else {
       setSelectedModel(undefined)
       transformControls?.detach()
@@ -112,7 +118,18 @@ const Viewer = ({
 			camera.position.z = 350;
 			animate.animate();
       // render Jaw model
-			rendererStl(stlUrl, scene, textureLoader, loader, defaultWhiteTexutre);
+			rendererStl(
+        stlUrl,
+        scene,
+        textureLoader,
+        loader,
+        defaultWhiteTexutre,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        true
+      );
       renderer.domElement.addEventListener('dblclick', addScrew);
       renderer.domElement.addEventListener('click', reselectOrReset);
 

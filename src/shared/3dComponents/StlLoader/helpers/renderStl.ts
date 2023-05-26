@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { STLLoader as Loader } from 'three/examples/jsm/loaders/STLLoader';
 import { ConfigInterface } from "./helpersInterfacies";
+import { JAW_COLOR, SCREW_COLOR } from "../../cosntants";
 
 
 export const rendererStl = (
@@ -12,13 +13,21 @@ export const rendererStl = (
     posConfigs: ConfigInterface = {x: 0, y: 0, z: 0}, // positional configuration
     rotationConfigs: ConfigInterface = {x: 0, y: 0, z: 0}, // rotation for current model
     saveModelInState?: React.Dispatch<React.SetStateAction<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]>[]>>,
-    selectModelOnCreation?: React.Dispatch<React.SetStateAction<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]> | undefined>>
+    selectModelOnCreation?: React.Dispatch<React.SetStateAction<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]> | undefined>>,
+    isJaw?: boolean
 ) => {
     loader.load(stlUrl, (geometry) => {
-        const material = new THREE.MeshMatcapMaterial({
-            color: 0xffffff, // color for texture
+        let material = new THREE.MeshMatcapMaterial({
+            color: SCREW_COLOR, // color for texture
             matcap: textureLoader.load(textur)
         });
+        if (isJaw) {
+            material = new THREE.MeshMatcapMaterial({
+                color: JAW_COLOR, // color for texture
+                matcap: textureLoader.load(textur),
+            });
+        }
+        
         const mesh = new THREE.Mesh(geometry, material);
         mesh.geometry.computeVertexNormals();
         mesh.geometry.center();

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { STLLoader as Loader } from 'three/examples/jsm/loaders/STLLoader';
 import { ConfigInterface } from "./helpersInterfacies";
-import { DELTA_COFICENT, STATIC_MODELS, WINGS_SEARCHABLE_OBJECT } from "../../cosntants";
+import { DELTA_COFICENT, SCREW_COLOR, STATIC_MODELS, WINGS_SEARCHABLE_OBJECT, WING_COLOR } from "../../cosntants";
 
 export type WingType = keyof typeof WINGS_SEARCHABLE_OBJECT
 
@@ -52,7 +52,7 @@ export const renderScrewWithWing = (
     loader.load(STATIC_MODELS.SCREW, (geometry) => { 
         // load screw 
         const screwMaterial = new THREE.MeshMatcapMaterial({
-            color: 0xdbd7de, // color for texture
+            color: SCREW_COLOR, // color for texture
             matcap: textureLoader.load(textur)
         });
         const mesh = new THREE.Mesh(geometry, screwMaterial);
@@ -64,7 +64,7 @@ export const renderScrewWithWing = (
       
         loader.load(WINGS_SEARCHABLE_OBJECT[wingType].model, (wingGeometry)=> {
             const wingMaterial = new THREE.MeshMatcapMaterial({
-                color: 0x9279d1, // color for texture
+                color: WING_COLOR, // color for texture
                 matcap: textureLoader.load(textur),
                 transparent: true,
                 opacity: 0.8,

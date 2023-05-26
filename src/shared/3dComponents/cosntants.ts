@@ -5,6 +5,11 @@ export const defaultWhiteTexutre = 'assets/models/GlobalTexturs/whiteTextureBasi
 
 export const DELTA_COFICENT = -5
 
+export const SCREW_COLOR = 0xdbd7de
+export const WING_COLOR = 0x9279d1
+export const JAW_COLOR = 0xd4b498
+export const SCENE_BACKGROUND_COLOR = 0xe2e8e3
+
 export const WINGS = [
     {name: 'Screw for wing', icon: 'assets/models/screw/screw.png', model: 'assets/models/screw/screw.png'},
     {name: 'Distance', icon: 'assets/models/wings/longWing/tectonic_long_preview.png', model: 'assets/models/wings/longWing/tectonic_long.stl'},
@@ -39,5 +44,3 @@ export const SCREW_CONFIGURE: MainConfig = {
         z: THREE.MathUtils.degToRad(90),
     },
 }
-
-export const SCENE_BACKGROUND_COLOR = 0x968368
