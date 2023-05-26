@@ -128,6 +128,12 @@ const Viewer = ({
           selectedModelRef.current.remove(selectedModelRef.current.children[0])
         }
         break
+      case 'r':
+        if (transformControlsRef?.current?.mode === 'translate') {
+          transformControlsRef?.current?.setMode('rotate');
+        } else {
+          transformControlsRef?.current?.setMode('translate');
+        }
     }
   }
 
