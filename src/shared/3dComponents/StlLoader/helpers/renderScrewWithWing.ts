@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { STLLoader as Loader } from 'three/examples/jsm/loaders/STLLoader';
 import { ConfigInterface } from "./helpersInterfacies";
-import { STATIC_MODELS, WINGS_SEARCHABLE_OBJECT } from "../../cosntants";
+import { DELTA_COFICENT, STATIC_MODELS, WINGS_SEARCHABLE_OBJECT } from "../../cosntants";
 
 export type WingType = keyof typeof WINGS_SEARCHABLE_OBJECT
 
@@ -48,6 +48,7 @@ export const renderScrewWithWing = (
     selectModelOnCreation?: React.Dispatch<React.SetStateAction<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]> | undefined>>
 ) => {
     if (wingType === 'Screw for wing') return // it should be simple screw not needed any type of wing 
+
     loader.load(STATIC_MODELS.SCREW, (geometry) => { 
         // load screw 
         const screwMaterial = new THREE.MeshMatcapMaterial({
@@ -57,7 +58,8 @@ export const renderScrewWithWing = (
         const mesh = new THREE.Mesh(geometry, screwMaterial);
         mesh.geometry.computeVertexNormals();
         mesh.geometry.center();
-        mesh.position.set(posConfigs.x || 0, posConfigs.y || 0, posConfigs.z || 0);
+
+        mesh.position.set(posConfigs.x || 0, (posConfigs.y && posConfigs.y + DELTA_COFICENT) || 0, posConfigs.z || 0);
         mesh.rotation.set(rotationConfigs.x || 0, rotationConfigs.y || 0, rotationConfigs.z || 0);
       
         loader.load(WINGS_SEARCHABLE_OBJECT[wingType].model, (wingGeometry)=> {
@@ -70,6 +72,7 @@ export const renderScrewWithWing = (
             const wingMesh = new THREE.Mesh(wingGeometry, wingMaterial);
             wingMesh.geometry.computeVertexNormals();
             wingMesh.geometry.center();
+            // config position/rotation/scale of the wings
             wingMesh.position.set(
                 wingMesh.position.x + wingConfigs[wingType]?.position.x || 0,
                 wingMesh.position.y + wingConfigs[wingType]?.position.y || 0,
