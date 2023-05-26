@@ -19,6 +19,7 @@ import { addWingOnSelectedScre } from './helpers/addWingOnSelectedScre';
 const textureLoader = new THREE.TextureLoader();
 const loader = new Loader();
 
+
 const Viewer = ({
     stlUrl = 'assets/models/JawModel/Jaw.stl',
     width = window.innerWidth,
@@ -114,6 +115,11 @@ const Viewer = ({
       transformControls?.detach()
     }
   };
+
+  const transformControlsDraging = (event: any) => {
+    (orbitControls as OrbitControls).enabled = !event.value
+  }
+
   // keyboard events
   const keyEvenets = (event: KeyboardEvent) => {
     console.log(event.key)
@@ -137,6 +143,7 @@ const Viewer = ({
     }
   }
 
+
   // create scene
   useEffect(() => {
     const scene = new THREE.Scene();
@@ -151,11 +158,27 @@ const Viewer = ({
   // configure scene
   useEffect(() => {
 		if (renderer && camera && scene) {
-			setTransformControls(new TransformControls(camera, renderer.domElement));
+      const transformControls = new TransformControls(camera, renderer.domElement)
+      // TODO: try to customise and get this part as expected
+      // transformControls.traverse((child) => {
+      //   console.log(child)
+      // })
+      // const translateGizmo = transformControls.children.find(child => child.type === 'TransformControlsGizmo' );
+      // if (translateGizmo) {
+      //   translateGizmo.visible = false;
+      // }
+      // const planeControllers = transformControls.children.filter(child => child.type === 'TransformControlsPlane');
+      // const desiredScale = 15; // Adjust this value to your desired scale
+
+      // planeControllers.forEach(planeController => {
+      //   planeController.scale.set(desiredScale, desiredScale, desiredScale);
+      // });
+      
+      setTransformControls(transformControls);
 			renderer.setSize(width, height);
 			setOrbitControls(new OrbitControls(camera, renderer.domElement));
 
-			if (containerRef.current) (containerRef.current as any).appendChild(renderer.domElement);
+			if (containerRef.current) (containerRef.current).appendChild(renderer.domElement);
 			const animate = createAnimate(scene, camera, renderer);
 			camera.position.z = 350;
 			animate.animate();
@@ -212,6 +235,7 @@ const Viewer = ({
 
   useEffect(() => {
     transformControlsRef.current = transformControls
+    transformControls?.addEventListener('dragging-changed', transformControlsDraging)
   }, [transformControls])
 
   return (
