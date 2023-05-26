@@ -15,6 +15,7 @@ import styles from './style.module.css'
 import { SideBar } from '../../components/SideBar';
 import { WingContext } from '../../Contexts/ChoosedWingsContext/provider';
 import { WingType, renderScrewWithWing } from './helpers/renderScrewWithWing';
+import { addWingOnSelectedScre } from './helpers/addWingOnSelectedScre';
 
 const textureLoader = new THREE.TextureLoader();
 const loader = new Loader();
@@ -35,9 +36,10 @@ const Viewer = ({
   const { choosedWingType } = useContext(WingContext);
   const screwModelsRef = useRef(screwModels);
   const choosedWingTypeRef = useRef(choosedWingType);
+  const selectedModelRef = useRef(selectedModel)
 
   // mouse events
-  const addScrew = (event: MouseEvent) => {
+  const addScrewOrWing = (event: MouseEvent) => {
     if (!scene || !camera || !renderer) return
     event.preventDefault();
     const mouse = new THREE.Vector2(
@@ -49,6 +51,7 @@ const Viewer = ({
 
     // intersect with Jaw model (core model in scene )
     const intersects = raycaster.intersectObjects([scene.children[0]], true);
+    const intersectsWithScrew = raycaster.intersectObjects(screwModelsRef.current, true);
 
     if (intersects.length > 0) {
       const intersect = intersects[0];
@@ -61,9 +64,20 @@ const Viewer = ({
         rendererStl(ScrewModel, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation, setScrewModels, setSelectedModel);
       } else {
         // add element with wing 
-        renderScrewWithWing(choosedWingTypeRef.current as WingType, scene, textureLoader, loader, defaultWhiteTexutre, position, rotation, setScrewModels, setSelectedModel);
+        renderScrewWithWing(
+          choosedWingTypeRef.current as WingType,
+          scene,
+          textureLoader,
+          loader,
+          defaultWhiteTexutre,
+          position,
+          rotation,
+          setScrewModels,
+          setSelectedModel
+        );
       }
-    }
+    }   
+
   }
 
   const reselectOrReset = (event: MouseEvent) => {
@@ -82,10 +96,22 @@ const Viewer = ({
     if (intersects.length > 0) {
       // understanding is it the screw or the screw with wing 
       const intersectedObject = intersects[0].object as THREE.Mesh
-      if (intersectedObject.parent?.uuid == scene.uuid) {
-        setSelectedModel(intersectedObject)
+
+      // selection 
+      if (intersectedObject.parent?.uuid === scene.uuid) {
+        if (intersectedObject === selectedModelRef.current) {
+          addWingOnSelectedScre(
+            choosedWingTypeRef.current as WingType,
+            intersectedObject,
+            textureLoader,
+            loader,
+            defaultWhiteTexutre
+          );
+          return 
+        }
+        setSelectedModel(intersectedObject) // choosed the screw 
       } else {
-        setSelectedModel(intersectedObject.parent as THREE.Mesh)
+        setSelectedModel(intersectedObject.parent as THREE.Mesh) // choosed the wing need to give the parrent screw for slection
       }
     } else {
       setSelectedModel(undefined)
@@ -130,11 +156,11 @@ const Viewer = ({
         undefined,
         true
       );
-      renderer.domElement.addEventListener('dblclick', addScrew);
+      renderer.domElement.addEventListener('dblclick', addScrewOrWing);
       renderer.domElement.addEventListener('click', reselectOrReset);
 
       return () => {
-				renderer.domElement.removeEventListener('dblclick', addScrew);
+				renderer.domElement.removeEventListener('dblclick', addScrewOrWing);
         renderer.domElement.removeEventListener('click', reselectOrReset);
 			};
 		}
@@ -154,8 +180,10 @@ const Viewer = ({
     if (selectedModel && transformControls) {
       scene?.add(transformControls);
       transformControls?.attach(selectedModel);
+      selectedModelRef.current = selectedModel
     } else {
       transformControls?.detach();
+      selectedModelRef.current = undefined
     }
   }, [selectedModel])
 

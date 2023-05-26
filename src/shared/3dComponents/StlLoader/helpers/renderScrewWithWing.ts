@@ -5,7 +5,7 @@ import { DELTA_COFICENT, SCREW_COLOR, STATIC_MODELS, WINGS_SEARCHABLE_OBJECT, WI
 
 export type WingType = keyof typeof WINGS_SEARCHABLE_OBJECT
 
-const scaleOfWings = {x: 0.8, y: 0.8, z: 0.8}
+export const scaleOfWings = {x: 0.8, y: 0.8, z: 0.8}
 
 // TODO: maybe it's not good plkace for this functionality 
 export const wingConfigs = {
