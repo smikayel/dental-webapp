@@ -5,6 +5,37 @@ import { STATIC_MODELS, WINGS_SEARCHABLE_OBJECT } from "../../cosntants";
 
 export type WingType = keyof typeof WINGS_SEARCHABLE_OBJECT
 
+const scaleOfWings = {x: 0.8, y: 0.8, z: 0.8}
+
+// TODO: maybe it's not good plkace for this functionality 
+export const wingConfigs = {
+    'Distance': {
+        rotation: {x: 0, y: THREE.MathUtils.degToRad(90), z: 0},
+        scale: scaleOfWings,
+        position: {x: 2, y: 0, z: -3.2}
+    },
+    'Single': {
+        rotation: {x: 0, y: THREE.MathUtils.degToRad(90), z: 0},
+        scale: scaleOfWings,
+        position: {x: 2, y: 0, z: 3.5}
+    },
+    'Obtuse': {
+        rotation: {x: 0, y: THREE.MathUtils.degToRad(90), z: 0},
+        scale: scaleOfWings,
+        position: {x: 2, y: 0, z: 0}
+    },
+    'Acute': {
+        rotation: {x: 0, y: THREE.MathUtils.degToRad(90), z: 0},
+        scale: scaleOfWings,
+        position: {x: 2, y: -2.5, z: 1}
+    },
+    'Ninety': {
+        rotation: {x: 0, y: THREE.MathUtils.degToRad(90), z: 0},
+        scale: scaleOfWings,
+        position: {x: 2, y: -1, z: 0}
+    }
+}
+
 export const renderScrewWithWing = (
     wingType: WingType,
     scene: THREE.Scene,
@@ -16,6 +47,7 @@ export const renderScrewWithWing = (
     saveModelInState?: React.Dispatch<React.SetStateAction<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]>[]>>,
     selectModelOnCreation?: React.Dispatch<React.SetStateAction<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]> | undefined>>
 ) => {
+    if (wingType === 'Screw for wing') return // it should be simple screw not needed any type of wing 
     loader.load(STATIC_MODELS.SCREW, (geometry) => { 
         // load screw 
         const screwMaterial = new THREE.MeshMatcapMaterial({
@@ -38,12 +70,25 @@ export const renderScrewWithWing = (
             const wingMesh = new THREE.Mesh(wingGeometry, wingMaterial);
             wingMesh.geometry.computeVertexNormals();
             wingMesh.geometry.center();
-            wingMesh.position.set(mesh.position.x || 0, mesh.position.y || 0, mesh.position.z || 0);
-            wingMesh.rotation.set(mesh.position.x || 0, mesh.position.y || 0, mesh.position.z || 0);
+            wingMesh.position.set(
+                wingMesh.position.x + wingConfigs[wingType]?.position.x || 0,
+                wingMesh.position.y + wingConfigs[wingType]?.position.y || 0,
+                wingMesh.position.z + wingConfigs[wingType]?.position.z || 0
+            );
+            wingMesh.rotation.set(
+                wingConfigs[wingType]?.rotation?.x || 0,
+                wingConfigs[wingType]?.rotation?.y || 0,
+                wingConfigs[wingType]?.rotation?.z || 0
+            );
+            wingMesh.scale.set(
+                wingConfigs[wingType]?.scale?.x,
+                wingConfigs[wingType]?.scale?.y,
+                wingConfigs[wingType]?.scale?.z
+            );
             
             mesh.add(wingMesh)
-            scene.add(mesh); 
-            //TODO: fix this function
+            scene.add(mesh);
+            //TODO: fix this functionality
             // in busines logic it should given only when need to save the mesh in some of the states
             saveModelInState && saveModelInState(prevState => [...prevState, mesh])
 

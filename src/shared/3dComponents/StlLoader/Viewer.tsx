@@ -16,7 +16,6 @@ import { SideBar } from '../../components/SideBar';
 import { WingContext } from '../../Contexts/ChoosedWingsContext/provider';
 import { WingType, renderScrewWithWing } from './helpers/renderScrewWithWing';
 
-
 const textureLoader = new THREE.TextureLoader();
 const loader = new Loader();
 
