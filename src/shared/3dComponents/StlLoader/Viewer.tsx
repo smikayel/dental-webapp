@@ -1,6 +1,5 @@
 import { SetStateAction, useContext, useEffect, useRef, useState } from 'react';
 
-
 import * as THREE from 'three';
 import { STLLoader as Loader } from 'three/examples/jsm/loaders/STLLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'; // Import OrbitControls
@@ -34,9 +33,11 @@ const Viewer = ({
   const [selectedModel, setSelectedModel] = useState<THREE.Mesh | undefined>()
   const [orbitControls, setOrbitControls] = useState<SetStateAction<OrbitControls>>()  
   const { choosedWingType } = useContext(WingContext);
+  
   const screwModelsRef = useRef(screwModels);
   const choosedWingTypeRef = useRef(choosedWingType);
   const selectedModelRef = useRef(selectedModel)
+  const transformControlsRef = useRef(transformControls)
 
   // mouse events
   const addScrewOrWing = (event: MouseEvent) => {
@@ -48,7 +49,6 @@ const Viewer = ({
     );
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse, camera);
-
     // intersect with Jaw model (core model in scene )
     const intersects = raycaster.intersectObjects([scene.children[0]], true);
     const intersectsWithScrew = raycaster.intersectObjects(screwModelsRef.current, true);
@@ -77,7 +77,6 @@ const Viewer = ({
         );
       }
     }   
-
   }
 
   const reselectOrReset = (event: MouseEvent) => {
@@ -89,14 +88,11 @@ const Viewer = ({
     );
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse, camera);
-  
     // intersect with Jaw model (core model in scene )
     const intersects = raycaster.intersectObjects(screwModelsRef.current, true);
-
     if (intersects.length > 0) {
       // understanding is it the screw or the screw with wing 
       const intersectedObject = intersects[0].object as THREE.Mesh
-
       // selection 
       if (intersectedObject.parent?.uuid === scene.uuid) {
         if (intersectedObject === selectedModelRef.current) {
@@ -118,16 +114,30 @@ const Viewer = ({
       transformControls?.detach()
     }
   };
+  // keyboard events
+  const keyEvenets = (event: KeyboardEvent) => {
+    console.log(event.key)
+    switch(event.key) {
+      case 'd':
+      case 'Delete':
+        if (!selectedModelRef.current) return
+        if (!selectedModelRef.current.children.length) {
+          transformControlsRef?.current?.detach()
+          scene?.remove(selectedModelRef.current)
+        } else {
+          selectedModelRef.current.remove(selectedModelRef.current.children[0])
+        }
+        break
+    }
+  }
 
   // create scene
   useEffect(() => {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(SCENE_BACKGROUND_COLOR);
     setScene(scene);
-
 		const camera = new THREE.PerspectiveCamera(750, width / height, 10, 100000);
     setCamera(camera);
-
     const renderer = new THREE.WebGLRenderer({ antialias: true });
 		setRenderer(renderer);
 	}, [width , height]);
@@ -158,10 +168,12 @@ const Viewer = ({
       );
       renderer.domElement.addEventListener('dblclick', addScrewOrWing);
       renderer.domElement.addEventListener('click', reselectOrReset);
+      window.addEventListener('keydown', keyEvenets)
 
       return () => {
 				renderer.domElement.removeEventListener('dblclick', addScrewOrWing);
         renderer.domElement.removeEventListener('click', reselectOrReset);
+        window.removeEventListener('keydown', keyEvenets)
 			};
 		}
 	}, [renderer, camera, scene]);
@@ -191,6 +203,10 @@ const Viewer = ({
     screwModelsRef.current = screwModels
     choosedWingTypeRef.current = choosedWingType
   }, [screwModels, choosedWingType])
+
+  useEffect(() => {
+    transformControlsRef.current = transformControls
+  }, [transformControls])
 
   return (
       <>
