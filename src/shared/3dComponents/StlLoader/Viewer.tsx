@@ -160,20 +160,16 @@ const Viewer = ({
 		if (renderer && camera && scene) {
       const transformControls = new TransformControls(camera, renderer.domElement)
       // TODO: try to customise and get this part as expected
-      // transformControls.traverse((child) => {
-      //   console.log(child)
-      // })
-      // const translateGizmo = transformControls.children.find(child => child.type === 'TransformControlsGizmo' );
-      // if (translateGizmo) {
-      //   translateGizmo.visible = false;
-      // }
-      // const planeControllers = transformControls.children.filter(child => child.type === 'TransformControlsPlane');
-      // const desiredScale = 15; // Adjust this value to your desired scale
+      const translateGizmo = transformControls.children.find(child => child.type === 'TransformControlsGizmo' );
+      if (translateGizmo) {
+        translateGizmo.visible = false;
+      }
+      const translatePlane = transformControls.children.find(child => child.type === 'TransformControlsPlane')
+      console.log(translatePlane)
+      if (translatePlane) {
+        translatePlane.visible = true;
+      }
 
-      // planeControllers.forEach(planeController => {
-      //   planeController.scale.set(desiredScale, desiredScale, desiredScale);
-      // });
-      
       setTransformControls(transformControls);
 			renderer.setSize(width, height);
 			setOrbitControls(new OrbitControls(camera, renderer.domElement));
