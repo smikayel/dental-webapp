@@ -1,4 +1,4 @@
-import { SetStateAction, useContext, useEffect, useRef, useState } from 'react';
+import { Children, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
 
 import * as THREE from 'three';
 import { STLLoader as Loader } from 'three/examples/jsm/loaders/STLLoader';
@@ -159,20 +159,23 @@ const Viewer = ({
   useEffect(() => {
 		if (renderer && camera && scene) {
       const transformControls = new TransformControls(camera, renderer.domElement)
-      // TODO: try to customise and get this part as expected
-      const translateGizmo = transformControls.children.find(child => child.type === 'TransformControlsGizmo' );
-      if (translateGizmo) {
-        translateGizmo.visible = false;
-      }
-      const translatePlane = transformControls.children.find(child => child.type === 'TransformControlsPlane')
-      console.log(translatePlane)
-      if (translatePlane) {
-        translatePlane.visible = true;
-      }
 
+
+      // Customize the appearance of the gizmo
+      transformControls.traverse((object: any) => {
+      
+        if (!object.isMesh && !object.name && object.type !== 'Object3D') {       
+          const indControls = 0 // the index where we have all the elemetns for controller
+          const indCentralController = 9
+          const centralPlane = object.children[indControls].children[indCentralController]
+          object.children[indControls].children = [centralPlane]  // remove all and just show the central plane 
+          console.log(object.children[indControls].children)
+        }
+      });
       setTransformControls(transformControls);
 			renderer.setSize(width, height);
-			setOrbitControls(new OrbitControls(camera, renderer.domElement));
+      const newOrbitControls = new OrbitControls(camera, renderer.domElement)
+			setOrbitControls(newOrbitControls);
 
 			if (containerRef.current) (containerRef.current).appendChild(renderer.domElement);
 			const animate = createAnimate(scene, camera, renderer);
@@ -218,10 +221,16 @@ const Viewer = ({
       scene?.add(transformControls);
       transformControls?.attach(selectedModel);
       selectedModelRef.current = selectedModel
+
     } else {
       transformControls?.detach();
       selectedModelRef.current = undefined
     }
+
+    if (!transformControls) {
+      return
+    }
+
   }, [selectedModel])
 
   useEffect(() => {
@@ -232,6 +241,7 @@ const Viewer = ({
   useEffect(() => {
     transformControlsRef.current = transformControls
     transformControls?.addEventListener('dragging-changed', transformControlsDraging)
+
   }, [transformControls])
 
   return (
