@@ -1,6 +1,8 @@
 import { Children, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
 
 import * as THREE from 'three';
+import { MOUSE } from 'three';
+
 import { STLLoader as Loader } from 'three/examples/jsm/loaders/STLLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'; // Import OrbitControls
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
@@ -15,6 +17,7 @@ import { SideBar } from '../../components/SideBar';
 import { WingContext } from '../../Contexts/ChoosedWingsContext/provider';
 import { WingType, renderScrewWithWing } from './helpers/renderScrewWithWing';
 import { addWingOnSelectedScre } from './helpers/addWingOnSelectedScre';
+import { getAxis } from './helpers/getAxis';
 
 const textureLoader = new THREE.TextureLoader();
 const loader = new Loader();
@@ -30,7 +33,7 @@ const Viewer = ({
   const [renderer, setRenderer] = useState<THREE.WebGLRenderer>()
   const [camera, setCamera] = useState<THREE.PerspectiveCamera>()
   const [screwModels, setScrewModels] = useState<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]>[]>([])
-  const [transformControls, setTransformControls] = useState<TransformControls>();
+
   const [selectedModel, setSelectedModel] = useState<THREE.Mesh | undefined>()
   const [orbitControls, setOrbitControls] = useState<SetStateAction<OrbitControls>>()  
   const { choosedWingType } = useContext(WingContext);
@@ -38,7 +41,7 @@ const Viewer = ({
   const screwModelsRef = useRef(screwModels);
   const choosedWingTypeRef = useRef(choosedWingType);
   const selectedModelRef = useRef(selectedModel)
-  const transformControlsRef = useRef(transformControls)
+
 
   // mouse events
   const addScrewOrWing = (event: MouseEvent) => {
@@ -79,6 +82,11 @@ const Viewer = ({
       }
     }   
   }
+  
+  const onMouseMove = function () {
+    if (!camera || !selectedModelRef.current) return
+    console.log(getAxis(camera, selectedModelRef.current))
+  }
 
   const reselectOrReset = (event: MouseEvent) => {
     if (!scene || !camera || !renderer) return
@@ -112,7 +120,7 @@ const Viewer = ({
       }
     } else {
       setSelectedModel(undefined)
-      transformControls?.detach()
+      // TODO: add new controller
     }
   };
 
@@ -128,18 +136,20 @@ const Viewer = ({
       case 'Delete':
         if (!selectedModelRef.current) return
         if (!selectedModelRef.current.children.length) {
-          transformControlsRef?.current?.detach()
+          // TODO: add new controller
           scene?.remove(selectedModelRef.current)
         } else {
           selectedModelRef.current.remove(selectedModelRef.current.children[0])
         }
         break
       case 'r':
-        if (transformControlsRef?.current?.mode === 'translate') {
-          transformControlsRef?.current?.setMode('rotate');
-        } else {
-          transformControlsRef?.current?.setMode('translate');
-        }
+        console.log('')
+        // TODO: add new controller change mode
+        // if (transformControlsRef?.current?.mode === 'translate') {
+        //   transformControlsRef?.current?.setMode('rotate');
+        // } else {
+        //   transformControlsRef?.current?.setMode('translate');
+        // }
     }
   }
 
@@ -155,24 +165,16 @@ const Viewer = ({
 		setRenderer(renderer);
 	}, [width , height]);
 
+
+  
   // configure scene
   useEffect(() => {
 		if (renderer && camera && scene) {
-      const transformControls = new TransformControls(camera, renderer.domElement)
 
 
-      // Customize the appearance of the gizmo
-      transformControls.traverse((object: any) => {
+      // setTransformControls(transformControls);
+      // TODO: add new controller
       
-        if (!object.isMesh && !object.name && object.type !== 'Object3D') {       
-          const indControls = 0 // the index where we have all the elemetns for controller
-          const indCentralController = 9
-          const centralPlane = object.children[indControls].children[indCentralController]
-          object.children[indControls].children = [centralPlane]  // remove all and just show the central plane 
-          console.log(object.children[indControls].children)
-        }
-      });
-      setTransformControls(transformControls);
 			renderer.setSize(width, height);
       const newOrbitControls = new OrbitControls(camera, renderer.domElement)
 			setOrbitControls(newOrbitControls);
@@ -196,12 +198,16 @@ const Viewer = ({
       );
       renderer.domElement.addEventListener('dblclick', addScrewOrWing);
       renderer.domElement.addEventListener('click', reselectOrReset);
+      renderer.domElement.addEventListener('mousemove', onMouseMove);
+
       window.addEventListener('keydown', keyEvenets)
 
       return () => {
 				renderer.domElement.removeEventListener('dblclick', addScrewOrWing);
         renderer.domElement.removeEventListener('click', reselectOrReset);
+        renderer.domElement.addEventListener('mousemove', onMouseMove);
         window.removeEventListener('keydown', keyEvenets)
+
 			};
 		}
 	}, [renderer, camera, scene]);
@@ -217,19 +223,21 @@ const Viewer = ({
 
 
   useEffect(() => {
-    if (selectedModel && transformControls) {
-      scene?.add(transformControls);
-      transformControls?.attach(selectedModel);
-      selectedModelRef.current = selectedModel
+    // TODO: add buttons for changing the possition
+    
+    // if (selectedModel && transformControls) {
+    //   scene?.add(transformControls);
+    //   transformControls?.attach(selectedModel);
+    //   selectedModelRef.current = selectedModel
 
-    } else {
-      transformControls?.detach();
-      selectedModelRef.current = undefined
-    }
+    // } else {
+    //   transformControls?.detach();
+    //   selectedModelRef.current = undefined
+    // }
 
-    if (!transformControls) {
-      return
-    }
+    // if (!transformControls) {
+    //   return
+    // }
 
   }, [selectedModel])
 
@@ -238,11 +246,12 @@ const Viewer = ({
     choosedWingTypeRef.current = choosedWingType
   }, [screwModels, choosedWingType])
 
-  useEffect(() => {
-    transformControlsRef.current = transformControls
-    transformControls?.addEventListener('dragging-changed', transformControlsDraging)
+  // useEffect(() => {
+  //   // TODO: when attached model and trying to drag model disable
+  //   transformControlsRef.current = transformControls
+  //   transformControls?.addEventListener('dragging-changed', transformControlsDraging)
 
-  }, [transformControls])
+  // }, [transformControls])
 
   return (
       <>
