@@ -18,6 +18,7 @@ import { WingContext } from '../../Contexts/ChoosedWingsContext/provider';
 import { WingType, renderScrewWithWing } from './helpers/renderScrewWithWing';
 import { addWingOnSelectedScre } from './helpers/addWingOnSelectedScre';
 import { getAxis } from './helpers/getAxis';
+import { Axis, customTransformControl } from './helpers/customTransferController';
 
 const textureLoader = new THREE.TextureLoader();
 const loader = new Loader();
@@ -33,15 +34,17 @@ const Viewer = ({
   const [renderer, setRenderer] = useState<THREE.WebGLRenderer>()
   const [camera, setCamera] = useState<THREE.PerspectiveCamera>()
   const [screwModels, setScrewModels] = useState<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[]>[]>([])
-
+  const [transformControls, setTransformControls] = useState<customTransformControl>()
   const [selectedModel, setSelectedModel] = useState<THREE.Mesh | undefined>()
   const [orbitControls, setOrbitControls] = useState<SetStateAction<OrbitControls>>()  
+  const [isDrag, setIsDrag] = useState<boolean>(false)
   const { choosedWingType } = useContext(WingContext);
   
   const screwModelsRef = useRef(screwModels);
+  const orbitControlsRef = useRef(orbitControls);
   const choosedWingTypeRef = useRef(choosedWingType);
   const selectedModelRef = useRef(selectedModel)
-
+  const transformControlsRef = useRef(transformControls)
 
   // mouse events
   const addScrewOrWing = (event: MouseEvent) => {
@@ -83,10 +86,83 @@ const Viewer = ({
     }   
   }
   
-  const onMouseMove = function () {
+  const onMouseMoveChangeAxis = function (event: MouseEvent) {
     if (!camera || !selectedModelRef.current) return
-    console.log(getAxis(camera, selectedModelRef.current))
+    const axis = getAxis(camera, selectedModelRef.current)
+    if (transformControlsRef.current && axis !== transformControlsRef.current.axis) {
+      console.log(axis)
+      transformControlsRef.current.changeAxis(axis)
+    }
   }
+
+  const onMouseDown = (event: MouseEvent) => {
+    if (!selectedModelRef.current || !renderer || !camera) return;
+
+    const mouse = new THREE.Vector2(
+      (event.clientX / width) * 2 - 1,
+      -(event.clientY / height) * 2 + 1
+    );
+
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObject(selectedModelRef.current);
+    if (intersects.length > 0) {
+      const intersect = intersects[0];
+
+      (orbitControlsRef.current as OrbitControls).enabled = false
+
+      const offset = new THREE.Vector3().subVectors(
+        intersect.point,
+        selectedModelRef.current.position
+      );
+
+      const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(
+        camera.getWorldDirection(new THREE.Vector3()),
+        selectedModelRef.current.position
+      );
+
+      const onMouseMove = (event: MouseEvent) => {
+        const mouse = new THREE.Vector2(
+          (event.clientX / width) * 2 - 1,
+          -(event.clientY / height) * 2 + 1
+        );
+
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, camera);
+
+        const origin = camera.position.clone();
+        const direction = raycaster.ray.direction;
+
+        const denominator = plane.normal.dot(direction);
+        if (denominator !== 0) {
+          const t = -(origin.dot(plane.normal) + plane.constant) / denominator;
+          const intersectPoint = origin.clone().add(direction.clone().multiplyScalar(t));
+          const newPossition = intersectPoint.sub(offset) 
+          let newVector3 = new THREE.Vector3(intersect.object.position.x, newPossition.y, newPossition.z)
+          if (transformControlsRef.current?.axis === Axis.X) {
+            newVector3 = new THREE.Vector3(newPossition.x, intersect.object.position.y, newPossition.z)
+          } else if (transformControlsRef.current?.axis === Axis.Y) {
+            newVector3 = new THREE.Vector3( newPossition.x, newPossition.y, intersect.object.position.z)
+          } else if (transformControlsRef.current?.axis === Axis.Z) {
+            newVector3 = new THREE.Vector3(intersect.object.position.x, newPossition.y, newPossition.z)
+          }
+          selectedModelRef.current?.position.copy(newVector3);
+
+        }
+      };
+
+      const onMouseUp = () => {
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('mouseup', onMouseUp);
+        (orbitControlsRef.current as OrbitControls).enabled = true
+      };
+
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
+    }
+  };
+
 
   const reselectOrReset = (event: MouseEvent) => {
     if (!scene || !camera || !renderer) return
@@ -104,7 +180,7 @@ const Viewer = ({
       const intersectedObject = intersects[0].object as THREE.Mesh
       // selection 
       if (intersectedObject.parent?.uuid === scene.uuid) {
-        if (intersectedObject === selectedModelRef.current) {
+        if (intersectedObject.uuid === selectedModelRef.current?.uuid) {
           addWingOnSelectedScre(
             choosedWingTypeRef.current as WingType,
             intersectedObject,
@@ -120,13 +196,9 @@ const Viewer = ({
       }
     } else {
       setSelectedModel(undefined)
-      // TODO: add new controller
+      transformControls?.detach()
     }
   };
-
-  const transformControlsDraging = (event: any) => {
-    (orbitControls as OrbitControls).enabled = !event.value
-  }
 
   // keyboard events
   const keyEvenets = (event: KeyboardEvent) => {
@@ -136,23 +208,23 @@ const Viewer = ({
       case 'Delete':
         if (!selectedModelRef.current) return
         if (!selectedModelRef.current.children.length) {
-          // TODO: add new controller
           scene?.remove(selectedModelRef.current)
+          if (!transformControlsRef?.current?.mode) return
+            transformControlsRef.current.detach()
         } else {
-          selectedModelRef.current.remove(selectedModelRef.current.children[0])
+          const wing = selectedModelRef.current.children.find(el => el.name === 'wing')
+          wing && selectedModelRef.current.remove(wing)
         }
         break
       case 'r':
-        console.log('')
-        // TODO: add new controller change mode
-        // if (transformControlsRef?.current?.mode === 'translate') {
-        //   transformControlsRef?.current?.setMode('rotate');
-        // } else {
-        //   transformControlsRef?.current?.setMode('translate');
-        // }
+        if (!transformControlsRef?.current?.mode) return
+        if (transformControlsRef.current.mode === 'move') {
+          transformControlsRef.current.mode = 'rotate';
+        } else {
+          transformControlsRef.current.mode = 'move';
+        }
     }
   }
-
 
   // create scene
   useEffect(() => {
@@ -164,16 +236,13 @@ const Viewer = ({
     const renderer = new THREE.WebGLRenderer({ antialias: true });
 		setRenderer(renderer);
 	}, [width , height]);
-
-
   
   // configure scene
   useEffect(() => {
 		if (renderer && camera && scene) {
 
-
-      // setTransformControls(transformControls);
-      // TODO: add new controller
+      const transformControls = new customTransformControl()
+      setTransformControls(transformControls);
       
 			renderer.setSize(width, height);
       const newOrbitControls = new OrbitControls(camera, renderer.domElement)
@@ -198,46 +267,42 @@ const Viewer = ({
       );
       renderer.domElement.addEventListener('dblclick', addScrewOrWing);
       renderer.domElement.addEventListener('click', reselectOrReset);
-      renderer.domElement.addEventListener('mousemove', onMouseMove);
+      renderer.domElement.addEventListener('mousemove', onMouseMoveChangeAxis);
+      renderer.domElement.addEventListener('mousedown', onMouseDown);
 
       window.addEventListener('keydown', keyEvenets)
 
       return () => {
 				renderer.domElement.removeEventListener('dblclick', addScrewOrWing);
         renderer.domElement.removeEventListener('click', reselectOrReset);
-        renderer.domElement.addEventListener('mousemove', onMouseMove);
+        renderer.domElement.removeEventListener('mousemove', onMouseMoveChangeAxis);
+        renderer.domElement.removeEventListener('mousedown', onMouseDown);
         window.removeEventListener('keydown', keyEvenets)
 
 			};
 		}
 	}, [renderer, camera, scene]);
 
-
-    // orbit controller
+  // orbit controller
 	useEffect(() => {
 		if (!orbitControls) return
     (orbitControls as OrbitControls).maxDistance = 450;
     (orbitControls as OrbitControls).minDistance = 125;
-
+    orbitControlsRef.current = orbitControls
 	}, [orbitControls]);
 
 
   useEffect(() => {
     // TODO: add buttons for changing the possition
     
-    // if (selectedModel && transformControls) {
-    //   scene?.add(transformControls);
-    //   transformControls?.attach(selectedModel);
-    //   selectedModelRef.current = selectedModel
+    if (selectedModel) {
+      transformControls?.attach(selectedModel);
+      selectedModelRef.current = selectedModel
 
-    // } else {
-    //   transformControls?.detach();
-    //   selectedModelRef.current = undefined
-    // }
-
-    // if (!transformControls) {
-    //   return
-    // }
+    } else {
+      transformControls?.detach();
+      selectedModelRef.current = undefined
+    }
 
   }, [selectedModel])
 
@@ -246,12 +311,10 @@ const Viewer = ({
     choosedWingTypeRef.current = choosedWingType
   }, [screwModels, choosedWingType])
 
-  // useEffect(() => {
-  //   // TODO: when attached model and trying to drag model disable
-  //   transformControlsRef.current = transformControls
-  //   transformControls?.addEventListener('dragging-changed', transformControlsDraging)
+  useEffect(() => {
+    transformControlsRef.current = transformControls
 
-  // }, [transformControls])
+  }, [transformControls])
 
   return (
       <>

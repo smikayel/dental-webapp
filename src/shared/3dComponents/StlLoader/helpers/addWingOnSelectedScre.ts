@@ -12,7 +12,13 @@ export const addWingOnSelectedScre = (
     textur: string,
 ) => {
     if (wingType === 'Screw for wing') return // it should be simple screw not needed any type of wing 
-    if (intersectedObject.children.length) return
+    const length = intersectedObject.children.reduce((acc, ell) => {
+        if (ell.name == 'wing') {
+            acc += 1
+        }
+        return acc
+    }, 0)
+    if (length) return
       
     loader.load(WINGS_SEARCHABLE_OBJECT[wingType].model, (wingGeometry)=> {
         const wingMaterial = new THREE.MeshMatcapMaterial({
@@ -40,7 +46,7 @@ export const addWingOnSelectedScre = (
             wingConfigs[wingType]?.scale?.y,
             wingConfigs[wingType]?.scale?.z
         );
-        
+        wingMesh.name = 'wing'
         intersectedObject.add(wingMesh)
     });
 };

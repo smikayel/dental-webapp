@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { Axis } from './customTransferController';
 
 export const getAxis = (camera:THREE.PerspectiveCamera, object:THREE.Object3D<THREE.Event>) => {
     const cameraDirection = new THREE.Vector3();
@@ -14,11 +15,11 @@ export const getAxis = (camera:THREE.PerspectiveCamera, object:THREE.Object3D<TH
     let dominantAxis = '';
 
     if (dotX > dotY && dotX > dotZ) {
-        dominantAxis = 'X';
+        dominantAxis = Axis.Z;
     } else if (dotY > dotX && dotY > dotZ) {
-        dominantAxis = 'Y';
+        dominantAxis = Axis.X;
     } else if (dotZ > dotX && dotZ > dotY) {
-        dominantAxis = 'Z';
+        dominantAxis = Axis.Y;
     }
 
     return dominantAxis;

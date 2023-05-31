@@ -88,7 +88,7 @@ export const renderScrewWithWing = (
                 wingConfigs[wingType]?.scale?.y,
                 wingConfigs[wingType]?.scale?.z
             );
-            
+            wingMesh.name = 'wing'
             mesh.add(wingMesh)
             scene.add(mesh);
             //TODO: fix this functionality
