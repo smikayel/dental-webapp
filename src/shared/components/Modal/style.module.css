@@ -1,0 +1,35 @@
+.ModalBox {
+    box-sizing: border-box;
+    display: flex;
+    z-index: 1100;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 26.4px;
+    gap: 26.4px;
+    background: #FFFFFF;
+    border: 1.32px solid #EEEEEE;
+    border-radius: 21.12px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+}
+
+.contentContainer {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 15px 0 15px;
+}
+
+.InfoBar {
+    padding: 0 0 0 25px;
+    text-align: left;
+    height: 75px;
+}
+
+.titleBlock {
+    margin-top: 1px;
+}
+
+.descriptionBlock {
+    margin-top: -20px;
+}

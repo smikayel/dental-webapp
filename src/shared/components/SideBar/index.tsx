@@ -3,10 +3,16 @@ import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';
 import { Icon } from '../../components/Icon';
 import styles from './style.module.css'
 import { ImplantsSection } from '../ImplantsSection';
-import { WingContext } from '../../Contexts/ChoosedWingsContext/provider';
+import { ModalContext } from '../../Contexts/ModalContext/modalContext';
 
 export const SideBar = () => {
     const [collapsed, setCollapsed] = useState<boolean>(true)
+    const { state, updateState } = useContext(ModalContext);
+
+
+    const openInfoBar = () => {
+        updateState(true)
+    }
 
     return (
         <>
@@ -25,18 +31,24 @@ export const SideBar = () => {
                     >
                         Hide Menu
                     </MenuItem>
-                <SubMenu 
-                    label="Implants/Wings"
-                    icon={<Icon src='assets/images/Toolbar/implant.png'/>}
-                >
-                    <MenuItem style={{height: 'auto', padding: '5px'}}>
-                        <ImplantsSection />
-                    </MenuItem>
-                </SubMenu>
+                    <SubMenu 
+                        label="Implants/Wings"
+                        icon={<Icon src='assets/images/Toolbar/implant.png'/>}
+                    >
+                        <MenuItem style={{height: 'auto', padding: '5px'}}>
+                            <ImplantsSection />
+                        </MenuItem>
+                    </SubMenu>
                     <MenuItem
                         icon={<Icon src='assets/images/Toolbar/report-generator.png' height='40px'/>}
                     > 
-                    Generate Report 
+                        Generate Report 
+                    </MenuItem>
+                    <MenuItem
+                        icon={<Icon src='assets/images/Toolbar/info-icon.png' height='40px'/>}
+                        onClick={openInfoBar}
+                    > 
+                        how to use ?
                     </MenuItem>
                 </Menu>
             </Sidebar>

@@ -19,6 +19,8 @@ import { WingType, renderScrewWithWing } from './helpers/renderScrewWithWing';
 import { addWingOnSelectedScre } from './helpers/addWingOnSelectedScre';
 import { getAxis } from './helpers/getAxis';
 import { Axis, customTransformControl } from './helpers/customTransferController';
+import { ModalContext } from '../../Contexts/ModalContext/modalContext';
+import { InfoModal } from '../../components/Instruction/InfoModal';
 
 const textureLoader = new THREE.TextureLoader();
 const loader = new Loader();
@@ -29,7 +31,7 @@ const Viewer = ({
     width = window.innerWidth,
     height = window.innerHeight 
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null)
+  //states
   const [scene, setScene] = useState<THREE.Scene>()
   const [renderer, setRenderer] = useState<THREE.WebGLRenderer>()
   const [camera, setCamera] = useState<THREE.PerspectiveCamera>()
@@ -37,9 +39,12 @@ const Viewer = ({
   const [transformControls, setTransformControls] = useState<customTransformControl>()
   const [selectedModel, setSelectedModel] = useState<THREE.Mesh | undefined>()
   const [orbitControls, setOrbitControls] = useState<SetStateAction<OrbitControls>>()  
-  const [isDrag, setIsDrag] = useState<boolean>(false)
+  // context
   const { choosedWingType } = useContext(WingContext);
-  
+  const {state, updateState} = useContext(ModalContext)
+
+  // refs
+  const containerRef = useRef<HTMLDivElement>(null)
   const screwModelsRef = useRef(screwModels);
   const orbitControlsRef = useRef(orbitControls);
   const choosedWingTypeRef = useRef(choosedWingType);
@@ -58,8 +63,7 @@ const Viewer = ({
     raycaster.setFromCamera(mouse, camera);
     // intersect with Jaw model (core model in scene )
     const intersects = raycaster.intersectObjects([scene.children[0]], true);
-    const intersectsWithScrew = raycaster.intersectObjects(screwModelsRef.current, true);
-
+    if (selectedModelRef.current) return
     if (intersects.length > 0) {
       const intersect = intersects[0];
       const position = new THREE.Vector3().copy(intersect.point);
@@ -322,6 +326,9 @@ const Viewer = ({
         <div className={styles.SideMenu}>
           <SideBar />
         </div>
+        {
+          state && <InfoModal />
+        }
       </>
     )
 };

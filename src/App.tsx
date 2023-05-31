@@ -4,6 +4,7 @@ import Viewer from './shared/3dComponents/StlLoader/Viewer'
 
 import './App.css';
 import { WingProvider } from './shared/Contexts/ChoosedWingsContext/provider';
+import { ModalProvider } from './shared/Contexts/ModalContext/modalContext';
 
 
 function App() {
@@ -26,7 +27,9 @@ function App() {
       </header> */}
       
       <WingProvider>
-        <Viewer />
+        <ModalProvider>
+         <Viewer />
+        </ModalProvider>
       </WingProvider>
     </div>
   );
